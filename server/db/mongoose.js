@@ -4,8 +4,11 @@ mongoose.Promise = global.Promise;
 console.log('mongo URI: ', process.env.MONGODB_URI);
 
 mongoose.connect(process.env.MONGODB_URI, (e) => {
-    console.log('mongoose pripojeni...')
-    console.log('mongoose connect: ', e);
+    if(e===null) {
+        console.log('<|==|> MongoDB je připojeno')
+    } else {
+        console.log('<|==|> Probém připojení k mongoDB', e)
+    }
     
 });
 

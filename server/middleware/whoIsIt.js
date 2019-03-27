@@ -12,6 +12,7 @@ let {User} = require('../models/user');
 
 let whoIsIt = (req, res, next) => {
     let token;
+    console.log('req.cookies je: ', req.cookies);
     if (req.cookies['x-auth']) {
         token = req.cookies['x-auth'];
 

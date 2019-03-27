@@ -1,5 +1,5 @@
 require('./config/config');
-const path = require('path');
+// const path = require('path');
 const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -14,25 +14,36 @@ const {whoIsIt} = require('./middleware/whoIsIt');
 const {isAdmin} = require('./middleware/isAdmin');
 
 const app = express();
-const publicPath = path.join(__dirname, '..', 'client', 'public');
-console.log(publicPath);
+// const publicPath = path.join(__dirname, '..', 'client', 'public'); //netreba pro samostatny backend, frontend je slouzeny jinak
+// console.log(publicPath);
 
 const port = process.env.PORT;
 
-const corsOptions = {exposedHeaders: 'x-auth'};
-app.use(express.static(publicPath));
-app.use(cors(corsOptions));
+// const corsOptions = {exposedHeaders: 'x-auth'};
+const corsOptions = {origin: ['http://clsnofront.exty.cz', 'http://localhost:8080'], exposedHeaders: 'x-auth'};
+//app.use(express.static(publicPath));
+app.use(cors());
 app.use(cookieParser());
 app.use(bodyParser.json());
 
+// app.all('/', function(req, res, next) {
+//     res.header('Access-Control-Allow-Origin', '*');
+//     res.header('Access-Control-Allow-Headers', 'X-Requested-With');
+//     next();
+// });
 
 
-console.log('tohle je NODE_ENV: ', process.env.NODE_ENV);
+
+console.log('/////tohle je process.envNODE_ENV: ', process.env.NODE_ENV);
+// console.log('///tohle je apiUrl', apiUrl);
+
 
 //==========================================================================
 
 
-
+app.get('/api/chcijson', (req, res) => {
+    res.json({ahoj: 'Jak se mas'});
+});
 
 
 //==================I AM ALIVE============================================
@@ -298,7 +309,7 @@ app.post('/api/login', (req, res) => {
 
 app.get('/api/me', whoIsIt, (req, res) => {
 
-    // console.log('whoisloggedje: ',req.user);
+     console.log('whoisloggedje: ',req.user);
     
     res.send({user: req.user});
    
@@ -330,9 +341,11 @@ app.delete('/api/logout', authenticate, (req, res) => {
 
 // ========================================= CLIENT RENDERING =========================
 
-app.get ('*', (req, res) => {
-    res.sendFile(path.join(publicPath, 'index.html'));
-});
+// app.get ('*', (req, res) => {
+//     res.sendFile(path.join(publicPath, 'index.html'));
+// });
+
+
 
 
 
@@ -345,8 +358,8 @@ app.get ('*', (req, res) => {
 
 
 app.listen(port, () => {
-    // console.log(`Started up at port ${port}`);
-    console.log('server started');
+    console.log(`Started bezi na portu ${port}`);
+    // console.log('server started');
 });
 
 module.exports = {app};

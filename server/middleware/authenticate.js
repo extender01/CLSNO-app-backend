@@ -23,6 +23,7 @@ let authenticate = (req, res, next) => {
         req.token = token;
         next();
     }).catch((e) => {
+       console.log('necose stalo v autheticate middleware');
        
         res.status(401).send(e);
     });
