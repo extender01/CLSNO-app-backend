@@ -19,12 +19,30 @@ const app = express();
 
 const port = process.env.PORT;
 
-// const corsOptions = {exposedHeaders: 'x-auth'};
-const corsOptions = {origin: ['http://clsnofront.exty.cz', 'http://localhost:8080'], exposedHeaders: 'x-auth'};
+// const corsOptions = {allowedHeaders: 'content-type,x-auth', exposedHeaders: 'x-auth', credentials: true, origin: ['http://clsnofront.exty.cz', 'http://localhost:8080']};
+// const corsOptions = {origin: ['http://clsnofront.exty.cz', 'http://localhost:8080'], exposedHeaders: 'x-auth'};
 //app.use(express.static(publicPath));
-app.use(cors());
+const corsOptions = {
+    origin: ['http://clsnofront.exty.cz', 'http://localhost:8080', 'http://exty.cz', 'http://localhost:3000'],
+    credentials: true
+};
+
+app.use(cors(corsOptions));
+
+
+
 app.use(cookieParser());
 app.use(bodyParser.json());
+
+// app.use(function(req, res, next) {
+//     res.header("Access-Control-Allow-Origin", "http://clsnofront.exty.cz");
+//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+//     res.header("Access-Control-Allow-Credentials", true);
+//     res.header('Access-Control-Expose-Headers', 'x-auth');
+//     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+//     next();
+// });
+
 
 // app.all('/', function(req, res, next) {
 //     res.header('Access-Control-Allow-Origin', '*');
@@ -32,7 +50,7 @@ app.use(bodyParser.json());
 //     next();
 // });
 
-
+app.options('*', cors());
 
 console.log('/////tohle je process.envNODE_ENV: ', process.env.NODE_ENV);
 // console.log('///tohle je apiUrl', apiUrl);
@@ -128,13 +146,17 @@ app.get('/api/get-all', whoIsIt, (req, res) => {
 
 app.post('/api/addtest', isAdmin, (req, res) => {
    
-    // console.log('pridani testu pred spustenim save');
+    console.log('pridani testu pred spustenim save');
      
     let test = new Test(req.body);         //creates new mongoose model
     test.save().then((savedTest) => {
-        // console.log(savedTest);
+        console.log('test ulozen');
         res.send(savedTest);
-    }).catch((e) => {res.status(400).send(e);});
+    }).catch((e) => {
+        console.log('test neulozen');
+        res.status(400).send(e);
+    
+    });
 });
 
 
@@ -263,8 +285,8 @@ app.patch('/api/tests/:id', isAdmin, (req, res) => {
 // });
 
 //THIS VERSION ONLY CREATES NEW USER AND SAVES HIM TO DB
-// app.post('/api/adduser', isAdmin, (req, res) => {
-app.post('/api/adduser', (req, res) => { //for admin creation
+app.post('/api/adduser', isAdmin, (req, res) => {
+// app.post('/api/adduser', (req, res) => { //for admin creation
     console.log('chci admina a mam ho');
     
     //only users with admin rights can create new users
@@ -287,12 +309,18 @@ app.post('/api/adduser', (req, res) => { //for admin creation
 
 
 //=============== LOGIN=============================================
+
+
+
+// app.options('/api/login', cors());
+
+
 app.post('/api/login', (req, res) => {
     let extractedProps = _.pick(req.body, ['nick', 'password', 'rights']);
 
     User.findByCredentials(extractedProps.nick, extractedProps.password).then((user) => {
         return user.generateAuthToken().then((token) => {
-            // console.log('token', token);
+            console.log('token', token);
             // res.header('x-auth', token).send(user);
             res.cookie('x-auth', token).send(user);
         }).catch((e) => {
@@ -309,7 +337,7 @@ app.post('/api/login', (req, res) => {
 
 app.get('/api/me', whoIsIt, (req, res) => {
 
-     console.log('whoisloggedje: ',req.user);
+     console.log('whoisloggedje: ',req.user.nick);
     
     res.send({user: req.user});
    
@@ -321,6 +349,7 @@ app.get('/api/me', whoIsIt, (req, res) => {
 //=================== LOGOUT
 //req.user.removeToken and req.token are accessible cause of authenticate middleware which appends them to req object
 app.delete('/api/logout', authenticate, (req, res) => {
+// app.delete('/api/logout', (req, res) => {
     // console.log('pokus o smazani');
     // console.log(req.token);
     

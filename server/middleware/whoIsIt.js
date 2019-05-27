@@ -12,9 +12,10 @@ let {User} = require('../models/user');
 
 let whoIsIt = (req, res, next) => {
     let token;
-    console.log('req.cookies je: ', req.cookies);
+    // console.log('req.cookies je: ', req.cookies);
     if (req.cookies['x-auth']) {
         token = req.cookies['x-auth'];
+        // console.log('token je: ', token);
 
         User.findByToken(token).then((foundUser) => {
            
@@ -25,9 +26,9 @@ let whoIsIt = (req, res, next) => {
     
                 req.user = foundUser;
                 req.token = token;
-                console.log('foundUser v db je:', foundUser);
+                // console.log('foundUser v db je:', foundUser);
                 
-                console.log('req po mw je: ', req.user);
+                // console.log('req po mw je: ', req.user);
                 
             }
            
